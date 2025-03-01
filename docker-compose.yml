@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  sling-syncer:
+    build: .
+    container_name: sling-syncer
+    environment:
+      - SLING_TOKEN=${SLING_TOKEN}
+      - ORG_ID=${ORG_ID}
+      - USER_ID=${USER_ID}
+      - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}
+    volumes:
+      - .:/usr/src/app
+    command: ["node", "index.js"]
