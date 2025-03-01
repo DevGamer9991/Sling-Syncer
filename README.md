@@ -32,8 +32,10 @@ It allows you to bypass the restriction where you can't generate a calendar link
     ORG_ID=your_org_id
     USER_ID=your_user_id
     GOOGLE_CALENDAR_ID=your_google_calendar_id
-    REDIRECT_URL=your_redirect_url
+    REDIRECT_URI=http://localhost:5369
    ```
+
+   The redirect uri needs to be localhost because google wont take internal ip addresses as redirect uris, so when you log in and it redirects just change localhost in the url to your server ip unless its running on your local computer
 
 4. **Create Google API credentials:**
 
