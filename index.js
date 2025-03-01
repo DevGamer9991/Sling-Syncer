@@ -58,6 +58,7 @@ async function saveCredentials(client) {
  *
  */
 async function authorize() {
+    console.log('Authorizing...');
     let client = await loadSavedCredentialsIfExist();
     if (client) {
         return client;
@@ -68,11 +69,6 @@ async function authorize() {
     });
     if (client.credentials) {
         await saveCredentials(client);
-    } else {
-        console.log('Authorization URL:', client.generateAuthUrl({
-            access_type: 'offline',
-            scope: SCOPES,
-        }));
     }
     return client;
 }
