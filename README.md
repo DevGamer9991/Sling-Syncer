@@ -1,6 +1,8 @@
 # Sling Syncer
 
-This project syncs shift data from the Sling API to Google Calendar. It uses Node.js, the Google Calendar API, and Docker.
+This project syncs your current scheduled shift data from [Sling](getsling.com) to Google Calendar for the next month.
+
+It allows you to bypass the restriction where you can't generate a callendar link in the free version of Sling.
 
 ## Prerequisites
 
