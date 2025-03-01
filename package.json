@@ -13,6 +13,7 @@
     "@google-cloud/local-auth": "^2.1.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
+    "google-auth-library": "^9.15.1",
     "googleapis": "^105.0.0",
     "node-cron": "^3.0.3"
   }

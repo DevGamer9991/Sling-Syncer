@@ -4,8 +4,12 @@ const process = require('process');
 const fs = require('fs').promises;
 const cron = require('node-cron');
 const axios = require('axios');
+const http = require('http');
+const url = require('url');
+const open = require('open');
+const destroyer = require('server-destroy');
 
-const {authenticate} = require('@google-cloud/local-auth');
+const {OAuth2Client} = require('google-auth-library');
 const {google} = require('googleapis');
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/calendar.events'];
@@ -17,41 +21,61 @@ const userID = process.env.USER_ID;
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
-let auth;
-
 /**
- * Reads previously authorized credentials from the save file.
- *
- * @return {Promise<OAuth2Client|null>}
- */
-async function loadSavedCredentialsIfExist() {
-    try {
-        const content = await fs.readFile(TOKEN_PATH);
-        const credentials = JSON.parse(content);
-        return google.auth.fromJSON(credentials);
-    } catch (err) {
-        return null;
-    }
-}
+* Create a new OAuth2Client, and go through the OAuth2 content
+* workflow.  Return the full client to the callback.
+*/
+function getAuthenticatedClient() {
+    return new Promise(async (resolve, reject) => {
 
-/**
- * Serializes credentials to a file compatible with GoogleAuth.fromJSON.
- *
- * @param {OAuth2Client} client
- * @return {Promise<void>}
- */
-async function saveCredentials(client) {
-    const content = await fs.readFile(CREDENTIALS_PATH);
-    const keys = JSON.parse(content);
-    const key = keys.installed || keys.web;
-    const payload = JSON.stringify({
-        type: 'authorized_user',
-        client_id: key.client_id,
-        client_secret: key.client_secret,
-        refresh_token: client.credentials.refresh_token,
+        // Load client secrets from a local file.
+        const keys = JSON.parse(await fs.readFile(CREDENTIALS_PATH)).installed
+        // create an oAuth client to authorize the API call.  Secrets are kept in a `keys.json` file,
+        // which should be downloaded from the Google Developers Console.
+        const oAuth2Client = new OAuth2Client(
+            keys.client_id,
+            keys.client_secret,
+            process.env.REDIRECT_URI
+        );
+    
+        // Generate the url that will be used for the consent dialog.
+        const authorizeUrl = oAuth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: SCOPES,
+        });
+    
+        // Open an http server to accept the oauth callback. In this simple example, the
+        // only request to our webserver is to /oauth2callback?code=<code>
+        const server = http
+            .createServer(async (req, res) => {
+            try {
+                if (req.url.indexOf('/') > -1) {
+                // acquire the code from the querystring, and close the web server.
+                const qs = new url.URL(req.url, 'http://localhost:3000')
+                    .searchParams;
+                const code = qs.get('code');
+                console.log(`Code is ${code}`);
+                res.end('Authentication successful! Please return to the console.');
+                server.destroy();
+    
+                // Now that we have the code, use that to acquire tokens.
+                const r = await oAuth2Client.getToken(code);
+                // Make sure to set the credentials on the OAuth2 client.
+                oAuth2Client.setCredentials(r.tokens);
+                console.info('Tokens acquired.');
+                resolve(oAuth2Client);
+                }
+            } catch (e) {
+                reject(e);
+            }
+            })
+            .listen(3000, () => {
+                // open the browser to the authorize url to start the workflow
+                open(authorizeUrl, {wait: false}).then(cp => cp.unref());
+            });
+        destroyer(server);
     });
-    await fs.writeFile(TOKEN_PATH, payload);
-}
+  }
 
 /**
  * Load or request or authorization to call APIs.
@@ -59,18 +83,22 @@ async function saveCredentials(client) {
  */
 async function authorize() {
     console.log('Authorizing...');
-    let client = await loadSavedCredentialsIfExist();
-    if (client) {
-        return client;
-    }
-    client = await authenticate({
-        scopes: SCOPES,
-        keyfilePath: CREDENTIALS_PATH,
-    });
-    if (client.credentials) {
-        await saveCredentials(client);
-    }
-    return client;
+
+    let oAuth2Client;
+    try {
+        // Check if the token file exists
+        const token = await fs.readFile(TOKEN_PATH);
+        oAuth2Client = new OAuth2Client();
+        oAuth2Client.setCredentials(JSON.parse(token));
+        console.log('Token loaded from file');
+    } catch (error) {
+        // If the token file doesn't exist, create a new OAuth2 client
+        oAuth2Client = await getAuthenticatedClient();
+        // Save the token to disk for later program executions
+        await fs.writeFile(TOKEN_PATH, JSON.stringify(oAuth2Client.credentials));
+        console.log('Token saved to file');
+    } 
+    return oAuth2Client;
 }
 
 
