@@ -4,6 +4,7 @@ services:
   sling-syncer:
     build: .
     container_name: sling-syncer
+    restart: unless-stopped
     environment:
       - SLING_TOKEN=${SLING_TOKEN}
       - ORG_ID=${ORG_ID}
