@@ -25,15 +25,14 @@ This project syncs shift data from the Sling API to Google Calendar. It uses Nod
     ```
 
 3. **Create a .env file** in the project directory and add your environment :
-
-variables    ```env
+   ```env
     SLING_TOKEN=your_sling_token
     ORG_ID=your_org_id
     USER_ID=your_user_id
     GOOGLE_CALENDAR_ID=your_google_calendar_id
-    ```
+   ```
 
-4. **Create Google API credentials:**
+5. **Create Google API credentials:**
 
     - Go to the [Google Cloud Console](https://console.cloud.google.com/).
     - Create a new project or select an existing project.
@@ -41,7 +40,7 @@ variables    ```env
     - Create OAuth 2.0 credentials and download the credentials.json file.
     - Place the credentials.json file in the project directory.
 
-5. **Build and run the Docker container:**
+6. **Build and run the Docker container:**
 
     ```sh
     docker-compose up --build
