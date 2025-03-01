@@ -13,5 +13,7 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+EXPOSE 5369
+
 # Define the command to run the app
 CMD ["node", "index.js"]

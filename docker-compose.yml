@@ -11,6 +11,8 @@ services:
       - USER_ID=${USER_ID}
       - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}
       - REDIRECT_URI=${REDIRECT_URI}
+    ports:
+      - "5369:5369"
     volumes:
       - .:/usr/src/app
     command: ["node", "index.js"]
