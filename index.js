@@ -71,6 +71,7 @@ function getAuthenticatedClient() {
             })
             .listen(5369, () => {
                 // open the browser to the authorize url to start the workflow
+                console.log('Authorize this app by visiting this url:', authorizeUrl);
                 open(authorizeUrl, {wait: false}).then(cp => cp.unref());
             });
         destroyer(server);
