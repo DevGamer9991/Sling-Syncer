@@ -33,9 +33,12 @@ It allows you to bypass the restriction where you can't generate a calendar link
     USER_ID=your_user_id
     GOOGLE_CALENDAR_ID=your_google_calendar_id
     REDIRECT_URI=http://localhost:5369
+    DISCORD_WEBHOOK_URL=your_discord_webhook_url
    ```
 
-   The redirect uri needs to be localhost because google wont take internal ip addresses as redirect uris, so when you log in and it redirects just change localhost in the url to your server ip unless its running on your local computer
+   The redirect uri needs to be localhost because google wont take internal ip addresses as redirect uris, so when you log in and it redirects just change localhost in the url to your server ip unless its running on your local computer.
+
+    The discord webhook url is optional and is used to send a message to a discord webhook when the sync is complete. If you don't want to use this feature, you can remove the DISCORD_WEBHOOK_URL variable from the .env file.
 
 4. **Create Google API credentials:**
 
