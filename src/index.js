@@ -22,6 +22,18 @@ const discordWebhookURL = process.env.DISCORD_WEBHOOK_URL;
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
+async function sendDiscordMessage(message) {
+    try {
+        if (discordWebhookURL) {
+            await axios.post(discordWebhookURL, {
+                content: message
+            });
+        }
+    } catch (error) {
+        console.error('Error sending Discord message:', error);
+    }
+}
+
 /**
 * Create a new OAuth2Client, and go through the OAuth2 content
 * workflow.  Return the full client to the callback.
@@ -93,11 +105,7 @@ async function authorize() {
         oAuth2Client = new OAuth2Client();
         oAuth2Client.setCredentials(JSON.parse(token));
         console.log('Token loaded from file');
-        if (discordWebhookURL) {
-            await axios.post(discordWebhookURL, {
-                content: `Authorized to access Google Calendar, token loaded from file`
-            });
-        }
+        sendDiscordMessage(`Authorized to access Google Calendar, token loaded from file`)
         
     } catch (error) {
         // If the token file doesn't exist, create a new OAuth2 client
@@ -105,12 +113,7 @@ async function authorize() {
         // Save the token to disk for later program executions
         await fs.writeFile(TOKEN_PATH, JSON.stringify(oAuth2Client.credentials));
         console.log('Token saved to file');
-
-        if (discordWebhookURL) {
-            await axios.post(discordWebhookURL, {
-                content: `Authorized to access Google Calendar, token saved to file`
-            });
-        }
+        sendDiscordMessage(`Authorized to access Google Calendar, token saved to file`)
 
     } 
     return oAuth2Client;
@@ -207,19 +210,11 @@ async function main(googleAuth) {
             resource: event,
         }, async (err, res) => {
             if (err) {
-                if (discordWebhookURL) {
-                    await axios.post(discordWebhookURL, {
-                        content: `Error Creating Event for ${positionName} from ${startTime} to ${endTime}: ${err}`
-                    });
-                }
+                sendDiscordMessage(`Error Creating Event for ${positionName} from ${startTime} to ${endTime}: ${err}`)
 
                 return console.log('The API returned an error: ' + err);
             }
-            if (discordWebhookURL) {
-                await axios.post(discordWebhookURL, {
-                    content: `Event created for ${positionName} from ${startTime} to ${endTime}`
-                });
-            }
+            sendDiscordMessage(`Event created for ${positionName} from ${startTime} to ${endTime}`)
             console.log('Event created: %s', res.data.htmlLink);
         });
 
@@ -235,11 +230,7 @@ authorize().then((auth) => {
     cron.schedule('0 0 * * *', () => {
         console.log('Running the job');
 
-        if (discordWebhookURL) {
-            axios.post(discordWebhookURL, {
-                content: `Running the job`
-            });
-        }
+        sendDiscordMessage(`Running the job`)
 
         main(auth);
     });
