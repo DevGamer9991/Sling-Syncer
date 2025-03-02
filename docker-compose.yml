@@ -15,4 +15,3 @@ services:
       - "5369:5369"
     volumes:
       - .:/usr/src/app
-    command: ["node", "index.js"]
