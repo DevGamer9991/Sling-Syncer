@@ -44,12 +44,12 @@ It allows you to bypass the restriction where you can't generate a calendar link
     - Enable the Google Calendar API for your project.
     - Create OAuth 2.0 credentials and download the credentials.json file.
     - Set the redirect URL to either a public IP by port forwarding port 3000 or by using a local IP on the same network and same port.
-    - Place the credentials.json file in the project directory.
+    - Place the credentials.json file in the auth folder in the project directory.
 
 5. **Build and run the Docker container:**
 
     ```sh
-    docker-compose up --build
+    docker-compose up --build -d
     ```
 
 ## Usage
