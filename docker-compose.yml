@@ -11,6 +11,7 @@ services:
       - USER_ID=${USER_ID}
       - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}
       - REDIRECT_URI=${REDIRECT_URI}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
     ports:
       - "5369:5369"
     volumes:
