@@ -10,6 +10,7 @@ It allows you to bypass the restriction where you can't generate a calendar link
 - Docker
 - Docker Compose
 - Google API credentials
+- Discord Webhook URL (optional)
 
 ## Setup
 
