@@ -141,88 +141,93 @@ async function getShiftData(referenceDate, shiftData = []) {
 }
 
 async function main(googleAuth) {
-    const referenceDate = new Date();
+    try {
+        const referenceDate = new Date();
 
-    auth = googleAuth;
-
-    var shiftData = await getShiftData(referenceDate);
-
-    for (const shift of shiftData) {
-        // pull the dates and times
-        const startTime = new Date(shift.dtstart);
-        const endTime = new Date(shift.dtend);
-
-        // pull the position id
-        const positionID = shift.position.id;
-
-        var positionName = '';
-
-        switch (positionID) {
-            case 18984501:
-                positionName = 'Shadowing Front Desk';
-                break;
-            case 1710948:
-                positionName = 'Front Desk';
-                break;
-            case 1710949:
-                positionName = 'Check In Desk';
-                break;
-            default:
-                positionName = 'Unknown';
-                break;
-        }
-
-        // take all this data and create events in the calendar
-        const event = {
-            summary: positionName,
-            start: {
-                dateTime: startTime.toISOString(),
-                timeZone: 'America/New_York',
-            },
-            end: {
-                dateTime: endTime.toISOString(),
-                timeZone: 'America/New_York',
-            },
-            reminders: {
-                useDefault: false,
-                overrides: [
-                    { method: 'popup', minutes: 30 },
-                ],
-            },
-        };
-
-        const calendar = google.calendar({ version: 'v3', auth });
-
-        // check if the event already exists
-        const events = await calendar.events.list({
-            calendarId: process.env.GOOGLE_CALENDAR_ID,
-            timeMin: startTime.toISOString(),
-            timeMax: endTime.toISOString(),
-            q: positionName,
-        });
-
-        if (events.data.items.length > 0) {
-            console.log(`Event for ${positionName} already exists`);
-            continue;
-        }
-
-        calendar.events.insert({
-            calendarId: process.env.GOOGLE_CALENDAR_ID,
-            resource: event,
-        }, async (err, res) => {
-            if (err) {
-                sendDiscordMessage(`Error Creating Event for ${positionName} from ${startTime} to ${endTime}: ${err}`)
-
-                return console.log('The API returned an error: ' + err);
+        auth = googleAuth;
+    
+        var shiftData = await getShiftData(referenceDate);
+    
+        for (const shift of shiftData) {
+            // pull the dates and times
+            const startTime = new Date(shift.dtstart);
+            const endTime = new Date(shift.dtend);
+    
+            // pull the position id
+            const positionID = shift.position.id;
+    
+            var positionName = '';
+    
+            switch (positionID) {
+                case 18984501:
+                    positionName = 'Shadowing Front Desk';
+                    break;
+                case 1710948:
+                    positionName = 'Front Desk';
+                    break;
+                case 1710949:
+                    positionName = 'Check In Desk';
+                    break;
+                default:
+                    positionName = 'Unknown';
+                    break;
             }
-            sendDiscordMessage(`Event created for ${positionName} from ${startTime} to ${endTime}`)
-            console.log('Event created: %s', res.data.htmlLink);
-        });
-
-        console.log(`Event created for ${positionName} from ${startTime} to ${endTime}`);
-
-        // wait 1 second before creating the next event
-        await new Promise(resolve => setTimeout(resolve, 1000));
+    
+            // take all this data and create events in the calendar
+            const event = {
+                summary: positionName,
+                start: {
+                    dateTime: startTime.toISOString(),
+                    timeZone: 'America/New_York',
+                },
+                end: {
+                    dateTime: endTime.toISOString(),
+                    timeZone: 'America/New_York',
+                },
+                reminders: {
+                    useDefault: false,
+                    overrides: [
+                        { method: 'popup', minutes: 30 },
+                    ],
+                },
+            };
+    
+            const calendar = google.calendar({ version: 'v3', auth });
+    
+            // check if the event already exists
+            const events = await calendar.events.list({
+                calendarId: process.env.GOOGLE_CALENDAR_ID,
+                timeMin: startTime.toISOString(),
+                timeMax: endTime.toISOString(),
+                q: positionName,
+            });
+    
+            if (events.data.items.length > 0) {
+                console.log(`Event for ${positionName} already exists`);
+                continue;
+            }
+    
+            calendar.events.insert({
+                calendarId: process.env.GOOGLE_CALENDAR_ID,
+                resource: event,
+            }, async (err, res) => {
+                if (err) {
+                    sendDiscordMessage(`Error Creating Event for ${positionName} from ${startTime} to ${endTime}: ${err}`)
+    
+                    return console.log('The API returned an error: ' + err);
+                }
+                sendDiscordMessage(`Event created for ${positionName} from ${startTime} to ${endTime}`)
+                console.log('Event created: %s', res.data.htmlLink);
+            });
+    
+            console.log(`Event created for ${positionName} from ${startTime} to ${endTime}`);
+    
+            // wait 1 second before creating the next event
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    } catch (error) {
+        console.error(error);
+        sendDiscordMessage(`Error: ${error}`)
     }
 }
 
