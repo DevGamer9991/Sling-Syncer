@@ -231,6 +231,7 @@ async function main(googleAuth) {
     }
 }
 
+
 authorize().then((auth) => {
     main(auth);
     cron.schedule('0 0 * * *', () => {
