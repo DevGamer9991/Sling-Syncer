@@ -54,3 +54,4 @@ jobs:
           subject-name: index.docker.io/devgamer9991/sling-syncer
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
