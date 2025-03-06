@@ -19,8 +19,8 @@ const orgID = process.env.ORG_ID;
 const userID = process.env.USER_ID;
 const discordWebhookURL = process.env.DISCORD_WEBHOOK_URL;
 
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+const TOKEN_PATH = path.join(process.cwd(), 'auth/token.json');
+const CREDENTIALS_PATH = path.join(process.cwd(), 'auth/credentials.json');
 
 async function sendDiscordMessage(message) {
     try {
