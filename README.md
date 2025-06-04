@@ -1,5 +1,6 @@
 # Sling Syncer
 
+
 This project syncs your current scheduled shift data from [Sling](https://getsling.com) to Google Calendar for the next month.
 
 It allows you to bypass the restriction where you can't generate a calendar link in the free version of Sling.
